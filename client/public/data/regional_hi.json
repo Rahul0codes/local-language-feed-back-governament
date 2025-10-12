@@ -1,0 +1,44 @@
+{
+  "News": [
+    {
+      "Title": "इज़राइल-फिलिस्तीन संघर्ष: गाजा पट्टी में रॉकेट हमले, इज़राइल का जवाबी सैन्य ऑपरेशन",
+      "Description": "गाजा पट्टी में हमास द्वारा रॉकेट हमले के बाद इज़राइल ने सैन्य ऑपरेशन शुरू किया। दोनों पक्षों में तनाव बढ़ा है।",
+      "VideoText": "",
+      "URL": "https://www.aajtak.in/world/story/shelling-of-rockets-from-air-land-and-sea-in-gaza-strip-iron-swords-attack-military-bases-hamas-israel-action-against-palestine-ntc-1794548-2023-10-07",
+      "Categories": "International",
+      "Sentiment_Score": "[0.02, 0.58, 0.39]"
+    },
+    {
+      "Title": "अफगानिस्तान में भूकंप: 15 लोगों की मौत, कई घायल",
+      "Description": "अफगानिस्तान में आए भूकंप के तेज झटकों से कई इमारतें क्षतिग्रस्त हो गईं और 15 लोगों की मौत हो गई। राहत कार्य जारी है।",
+      "VideoText": "",
+      "URL": "https://www.aajtak.in/world/story/powerful-earthquakes-hit-afghanistan-ntc-1794543-2023-10-07",
+      "Categories": "Crime",
+      "Sentiment_Score": "[0.02, 0.55, 0.42]"
+    },
+    {
+      "Title": "एशियाड में भारत ने जीता क्रिकेट का गोल्ड मेडल",
+      "Description": "बारिश के कारण मैच रद्द होने के बाद भारत को एशियाड में क्रिकेट का गोल्ड मेडल मिला। अफगानिस्तान को सिल्वर से संतोष करना पड़ा।",
+      "VideoText": "",
+      "URL": "https://www.aajtak.in/sports/cricket/story/india-vs-afghanistan-asian-games-2023-highlights-score-india-won-gold-medal-in-asiad-cricket-afghanistan-won-silver-team-india-won-because-of-this-rule-tspo-1794431-2023-10-07",
+      "Categories": "Sports",
+      "Sentiment_Score": "[0.04, 0.16, 0.79]"
+    },
+    {
+      "Title": "मिलेट्स से बने उत्पादों पर GST में कटौती",
+      "Description": "सरकार ने मिलेट्स से बने उत्पादों पर GST दर 18% से घटाकर 5% कर दी है, जिससे दाम कम होंगे।",
+      "VideoText": "",
+      "URL": "https://www.aajtak.in/business/utility/story/gst-council-meet-update-tax-rate-on-millets-based-products-slashed-to-5-percent-from-18-percent-says-report-tutc-1794416-2023-10-07",
+      "Categories": "Business",
+      "Sentiment_Score": "[0.27, 0.06, 0.65]"
+    },
+    {
+      "Title": "राजस्थान चुनाव: 119 सीटों पर टिकी सरकार की किस्मत",
+      "Description": "राजस्थान में चुनावी घमासान के बीच भाजपा और कांग्रेस की असल खींचतान 119 सीटों पर रहती है।",
+      "VideoText": "",
+      "URL": "https://www.aajtak.in/elections/rajasthan-assembly-elections-2023/story/whose-government-formed-decided-by-119-seats-rajasthan-assembly-elections-equation-bjp-congress-ntc-1794508-2023-10-07",
+      "Categories": "Politics",
+      "Sentiment_Score": "[0.05, 0.45, 0.49]"
+    }
+  ]
+}

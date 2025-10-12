@@ -1,277 +1,94 @@
-# 360° Feedback on Government of India–Related News in Regional Media (AI/ML)
+# SIH-2023
+## Smart India Hackathon 2023 
+## Team Avengers 
+## Team Members- 
+Akash Rout <br>
+Nandini Gera<br>
+Sparsh Singh Bhatia<br>
+Ujjawal Gupta<br>
+Dhruv Goyal<br>
+Ankur Gupta<br>
 
-> A multilingual, privacy‑aware pipeline that ingests regional news, extracts insights about Government of India (GoI) entities, and delivers 360‑degree feedback loops for policymakers, departments, and the public.
+# Project Name: 
+## Automated Crawling, Categorization and Sentiment Analysis of Digital News with Incorporated Feedback System. 
 
----
+## Problem Statement- 1329
+The project addresses the need for a 360-degree feedback software for monitoring Government of India-related news stories in regional media using Artificial Intelligence and Machine Learning.
 
-## 🚀 TL;DR
+## Solution Proposed
+We've developed a smart system that automatically scrapes news from numerous sources across the internet including text articles as well as video news. After fetching these articles, these are then classified into categories of which ministry’s jurisdiction they come under followed by their sentiment analysis as positive, neutral, or negative scores are assigned to each news article fetched. If negative news is detected, alerts are sent to the respective government department through their concerned email address. This system keeps the government updated with news events and allows for quick responses when needed. The news are then displayed on a visually appealing and easy to use user-friendly interface where user can refresh and load the latest news when required. If not refreshed manually, the news is automatically refreshed after every hour. Option to fetch news articles in Engish, Hindi and multiple regional languages has been provided.
 
-* **Goal:** Build an end‑to‑end system to monitor regional media, detect stories about GoI ministries/schemes/officials, and summarize public sentiment, narratives, and emerging issues—then route insights as actionable feedback to stakeholders.
-* **Why it matters:** Policy and service delivery benefit when decision‑makers hear from all directions—media, citizens, and internal teams—especially across India’s many languages.
-* **How:** Crawling → Clean/De‑dupe → Multilingual NLP (NER, sentiment, stance, topic, clustering) → Summaries & KPIs → Dashboards & alerts → Feedback capture → Continuous learning.
 
----
+## Tech Stack Used
+- **AI**: PyTorch, TensorFlow, and BERT libraries for creating ML models.
+- **Crawling**: Beautiful Soup, Selenium
+- **Server**: Django backend.
+- **Frontend**: Next.js and Tailwind CSS frontend.
 
-## 🎯 Objectives
+## Run Commands
+To run the project locally:
 
-1. **Comprehensive Coverage:** Track GoI‑related stories across **regional languages** and sources (print e‑papers, TV transcripts when available, local portals, verified social mentions).
-2. **Entity Awareness:** Identify **ministries, departments, schemes (e.g., PM‑KISAN), offices, PSUs, locations, officials**; link to a controlled GoI **knowledge base/ontology**.
-3. **Narrative & Sentiment:** Detect **stance** (supportive/critical/neutral), **sentiment**, **topics**, and **emerging themes**.
-4. **Actionable Summaries:** Deliver **daily/weekly digests**, **live dashboards**, and **alerting** for anomalies/crises.
-5. **True 360° Loop:** Capture **responses/clarifications** from departments and **citizen feedback**, measure **resolution** and **impact over time**.
-6. **Privacy, Ethics, Compliance:** Respect Indian data laws, avoid PII leakage, maintain **audit trails** and **model cards**.
+1. Clone the repository:
 
----
-
-## 🌐 Multilingual Focus (Indic)
-
-* **Languages (extensible):** Hindi, Bengali, Telugu, Marathi, Tamil, Gujarati, Kannada, Malayalam, Odia, Punjabi, Assamese, Urdu, etc.
-* **Models (suggested options):**
-
-  * **Tokenization/Embeddings:** MuRIL, IndicBERT, LaBSE, multilingual SBERT.
-  * **NER:** Fine‑tuned IndicBERT/MuRIL; Gazetteer‑augmented for GoI entities.
-  * **Sentiment/Stance:** Multilingual classifiers with domain fine‑tuning; distant supervision via headlines; human‑in‑the‑loop corrections.
-  * **Topic & Clustering:** BERTopic/Top2Vec with multilingual embeddings; online clustering for emerging issues.
-  * **Summarization:** mT5/ByT5/Indic‑friendly LLMs; length controls and safety filters.
-  * **MT (optional):** Indic↔English translation for cross‑lingual search & summaries.
-
-> Choose models based on compute/security constraints; support CPU‑first fallbacks and quantized variants.
-
----
-
-## 🧭 System Architecture
-
-```mermaid
-flowchart LR
-  A[Source Ingestors\n(RSS, sitemaps, crawlers, APIs, TV/Radio transcripts)] --> B[Normalizer\n(clean, boilerplate removal, lang ID, dedupe)]
-  B --> C[Classifier\n(GoI relevance, media type)]
-  C --> D[Entity Layer\n(NER, entity linking to GoI KB)]
-  D --> E[Narrative Layer\n(sentiment, stance, topic, clustering)]
-  E --> F[Summarizer\n(abstracts, highlights, quotes)]
-  F --> G[Store & Index\n(PostgreSQL + PGVector/Elastic)]
-  G --> H[Dashboards & APIs\n(FastAPI, Streamlit/Next.js)]
-  H --> I[Alerts\n(email/Teams/Slack/SMS)]
-  H --> J[Feedback Capture\n(dept responses, citizen inputs)]
-  J --> K[Human‑in‑the‑Loop Label Studio\n(active learning, QA)]
-  K --> L[Model Training\n(offline retraining, eval, registry)]
-  L --> C
+```terminal
+git clone https://github.com/iamakashrout/SIH-2023.git
+```
+- Navigate to project directory.
+```terminal
+cd SIH-2023
 ```
 
----
+2. Install dependencies for the client (Next.js):
 
-## 🧩 Key Features
-
-* **Source Ingestion**: Configurable crawlers for regional outlets; RSS/sitemaps; paywall‑respecting integrations; optional YouTube/TV transcript fetchers where permitted.
-* **De‑duplication**: Near‑duplicate detection using MinHash/SimHash + embedding cosine similarity.
-* **Language Aware**: Automatic language ID, translation for cross‑lingual search, native‑language summaries on demand.
-* **GoI‑Aware NER & Linking**: Gazetteers + learned models; canonical IDs for ministries, schemes, officials, PSUs.
-* **Narrative Intelligence**: Sentiment, stance, topics, emerging storyline detection; crisis spikes & velocity.
-* **Summaries & Explainability**: Bullet summaries with extractive references; highlight key quotes; show evidence snippets.
-* **Dashboards**: Geo maps by state/district; timeline trends; outlet‑wise stance heatmaps; entity co‑occurrence.
-* **360° Feedback Loop**: Intake forms/APIs for departments to respond; citizen input module; resolution tracking.
-* **Governance**: Role‑based access; redaction; audit logs; model cards and drift monitoring.
-
----
-
-## 🛠️ Tech Stack (suggested)
-
-* **Backend:** Python **FastAPI**, Celery workers, Redis (queues), PostgreSQL (+ **pgvector**) or Elasticsearch/OpenSearch.
-* **Pipelines:** Airflow/Prefect or Kafka Streams for near‑realtime.
-* **NLP/ML:** PyTorch, Hugging Face Transformers, sentence‑transformers, spaCy, BERTopic, scikit‑learn, PyTorch‑Lightning.
-* **UI:** Next.js/React + Tailwind; alt: Streamlit for internal prototypes.
-* **Deploy:** Docker Compose → K8s (optional); Prometheus + Grafana; MLflow/Weights & Biases for experiments.
-
----
-
-## 📦 Repository Structure
-
-```
-.
-├── apps/
-│   ├── api/                # FastAPI app (ingest, search, analytics)
-│   ├── web/                # Next.js dashboard
-│   └── worker/             # Celery/consumer jobs
-├── pipelines/              # Airflow/Prefect DAGs; Kafka consumers
-├── nlp/
-│   ├── models/             # training scripts, configs
-│   ├── gazetteers/         # GoI entities & synonyms
-│   ├── components/         # ner.py, sentiment.py, topic.py, summarizer.py
-│   └── eval/               # evaluation datasets & notebooks
-├── data/
-│   ├── samples/            # redacted sample articles
-│   └── schema/             # JSON schemas
-├── infra/                  # Docker, K8s, Terraform (if any)
-├── notebooks/              # exploration & reports
-├── tests/                  # unit/integration tests
-├── scripts/                # utilities (crawl, backfill, export)
-├── docker-compose.yml
-├── .env.example
-└── README.md
+```terminal
+cd client
+npm install
 ```
 
----
 
-## 🔐 Compliance, Privacy & Ethics
+3. Start the Next.js development server:
 
-* **Legal:** Respect terms of use for sources; avoid bypassing paywalls; comply with IT Act and relevant policies.
-* **Privacy:** Store only required fields; redact PII; encrypt at rest and in transit; configurable retention.
-* **Bias & Fairness:** Balanced training/eval sets by language & region; publish **model cards**; manual review for sensitive outputs.
-* **Explainability:** Keep evidence snippets/URLs for each summary; show confidence scores.
-* **Accessibility:** WCAG‑compliant UI; multilingual content.
-
----
-
-## 🗂️ Data Model (simplified)
-
-```json
-Article {
-  id: string,
-  url: string,
-  outlet: string,
-  language: string,
-  published_at: datetime,
-  location: { state: string, district?: string },
-  title: string,
-  body: string,
-  embeddings: vector,
-  dedupe_key: string
-}
-
-StoryInsight {
-  article_id: string,
-  entities: [{ id: string, type: "ministry|scheme|official|psu|place", name: string }],
-  sentiment: { label: "pos|neg|neu", score: float },
-  stance: { label: "supportive|critical|neutral", score: float },
-  topics: [string],
-  summary: string,
-  evidence: [{ text: string, start: int, end: int }]
-}
-
-Feedback {
-  id: string,
-  entity_id: string,
-  source: "department|citizen|editor",
-  message: string,
-  created_at: datetime,
-  resolution_status: "open|in_progress|resolved"
-}
+```terminal
+npm run dev
 ```
 
----
+4. Install the necessary libraries and Paste the contents from [here](https://drive.google.com/drive/folders/1ow2Xq4amZnBRtGIQUN-cP-VXTFRaT6ox?usp=sharing) into the server folder. 
 
-## 🧪 Evaluation
+5. Start the Django backend server.
 
-* **NER:** F1 by entity type; exact/partial matches; KB‑linking accuracy.
-* **Sentiment/Stance:** Macro‑F1; confusion matrices by language & outlet.
-* **Summarization:** ROUGE, BERTScore, human eval for factuality & coverage.
-* **Clustering/Topics:** Intrinsic coherence + human interpretability checks.
-* **System:** Crawl coverage, de‑dupe rate, latency, alert precision/recall.
+```terminal
+python manage.py runserver
+ ```
 
----
+## Approach Details
+- Crawled 12000+ news articles and videos using Python Beautiful Soup and Selenium Library.<br>
+- Applied clustering on these articles to label them into different categories to prepare labeled dataset.<br>
+- Trained this dataset of articles using DistilBERT model to generate department predictions. Accuracy - 83%<br>
+- Used Roberta model to implement sentiment analysis on news articles.<br>
+- Sending mail of Negative News to respective departments using NodeMailer and Gmail - SMTP<br>
+- Integrated this model and crawling functionality with a Django backend and wrote APIs for generating predictions and sentiments.<br>
+- Merged this backend with a simple and attractive UI where user can give triggers to load latest news articles with their analysis.<br>
+- Implemented video news analysis using Selenium library by first extracting audio and converting it into text. Then applied classification and sentiment analysis on the extracted text. <br>
+- Developed the same functionalities for news in Hindi and others languages as well using Google Translate API. <br>
 
-## ▶️ Quick Start
 
-### Prerequisites
+## Screenshots
+![Frontend](Frontend_A.png) <br>
+<br>
+![Frontend](Frontend_B.png) <br>
+<br>
+![Frontend](Frontend_C.png) <br>
 
-* Python 3.10+
-* Docker & Docker Compose
-* PostgreSQL 14+ (or run via compose)
+[Screenshots Link](https://www.canva.com/design/DAFwxcZCMK8/pz5Z4bYMwfMgdxuzhGVv0g/edit)
 
-### Setup
 
-```bash
-# 1) Clone
-git clone https://github.com/your-org/360-feedback-regional-media-goi.git
-cd 360-feedback-regional-media-goi
+## Project Links  
 
-# 2) Configure env
-cp .env.example .env
-# Fill database URLs, model paths, API keys for translation/ASR if used
+[- Abstract](https://docs.google.com/document/d/16uxjx-_B8r9y3Muj9UF9Te59mdxYftoAy0u3LZxXm_k/edit?usp=sharing)  
 
-# 3) Start services
-docker compose up -d --build
+[- Description](https://docs.google.com/document/d/1WMexh_AJeoZyrdAbfSyy_lZgD4aRq_PiRC7nJ6Ir4EE/edit?usp=sharing) 
 
-# 4) Run migrations & seed GoI KB
-make migrate
-python scripts/seed_goi_kb.py data/seed/goi_entities.csv
+[- Youtube Demo](https://www.youtube.com/watch?v=9pKg_C6C43E) 
 
-# 5) Start workers and web
-make worker
-make api
-make web
-```
 
-### Sample Requests
 
-```bash
-# Ingest an article (raw HTML or text)
-curl -X POST http://localhost:8000/ingest \
-  -H 'Content-Type: application/json' \
-  -d '{
-        "url": "https://example.com/news/kan-news-123",
-        "html": "<html>…</html>",
-        "language": "kn"
-      }'
-
-# Search summaries for a scheme
-curl 'http://localhost:8000/search?q=PM-KISAN&lang=en&since=2025-07-01'
-
-# Get daily digest
-curl 'http://localhost:8000/digest?date=2025-08-18&lang=en'
-```
-
----
-
-## 🔁 360° Feedback Loop
-
-* **Department Portal:** View mentions, submit clarifications/responses.
-* **Citizen Input:** Structured forms; optional verification (OTP/email).
-* **Resolution Tracking:** Link department replies to stories; mark resolved; measure **time‑to‑clarification** and **public reaction shift**.
-* **Learning:** Approved edits feed back to training data via active learning.
-
----
-
-## 🧑‍💻 Development
-
-* **Code Style:** `ruff` + `black` + `mypy`.
-* **Testing:** `pytest -q`; include fixture data per language.
-* **CI/CD:** GitHub Actions for unit tests, container build, vulnerability scan.
-* **Observability:** Structured logs (OpenTelemetry), request tracing, model latency metrics.
-
----
-
-## 🗺️ Roadmap
-
-* [ ] Expand gazetteers for schemes/PSUs & synonyms in 12+ languages
-* [ ] Add streaming ASR for TV/radio clips (where licensed)
-* [ ] Real‑time crisis detection (spike + stance drift)
-* [ ] Fine‑tuned stance model per region/outlet
-* [ ] Editor curation UI + human notes
-* [ ] Redaction API + PII detector improvements
-* [ ] Offline bundles for air‑gapped deployments
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please open an issue with context (language, outlet, feature). For major changes, discuss via an issue first.
-
----
-
-## 📜 License
-
-Choose a license that matches your deployment context (e.g., **Apache‑2.0** for permissive use). Update `LICENSE` accordingly.
-
----
-
-## 🙏 Acknowledgements
-
-Thanks to the open‑source Indic NLP community and public datasets. Replace model/data references with the exact assets you adopt and credit appropriately.
-
----
-
-## 📧 Contact
-
-Project Maintainer: *Your Name* · *[email@example.com](mailto:email@example.com)*
-
-> *Tip:* Open `issues/` for source suggestions (regional outlets), false positives, or feature requests.
