@@ -1,533 +1,160 @@
-import React, { useState, useEffect } from "react";
-import Card from "../components/card";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Button,
-} from "@nextui-org/react";
-<<<<<<< Updated upstream
-// import regional_en from "../../public/data/regional.json";
-// import regional_hi from "../../public/data/regional_hi.json";
-=======
-import regional from "../../public/data/regional.json";
->>>>>>> Stashed changes
-import Crime from "../../public/categories/images/crime.jpg";
-import Culture from "../../public/categories/images/culture.jpg";
-import Entertainment from "../../public/categories/images/entertainment.jpg";
-import International from "../../public/categories/images/international.jpg";
-import Judiciary from "../../public/categories/images/judiciary.jpg";
-import Politics from "../../public/categories/images/politics3.jpg";
-import Science from "../../public/categories/images/science.jpg";
-import Sports from "../../public/categories/images/sports.jpg";
-import Technology from "../../public/categories/images/technology.jpg";
-import Business from "../../public/categories/images/business.jpg";
+import React, { FC, useEffect, useMemo, useState } from "react";
+import Card from "./cardClean";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@nextui-org/react";
 
-<<<<<<< Updated upstream
-
-const latestPosts = () => {
-  // Track client mount to avoid hydration errors
+const LatestPosts: FC = () => {
   const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => { setIsMounted(true); }, []);
-=======
-const latestPosts = () => {
-  const regionalNews = regional.News;
->>>>>>> Stashed changes
-  const [selectedKeys, setSelectedKeys] = useState(new Set(["English"]));
-  const selectedValue = React.useMemo(
-    () => Array.from(selectedKeys).join(", ").replaceAll("_", " "),
-    [selectedKeys]
-  );
-<<<<<<< Updated upstream
-  // State for live articles
-  const [newsData, setNewsData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  // GNews API key (replace with your own key)
-  const GNEWS_API_KEY = "3ebc63848202d5e3844862995e2146d4";
-  // AI summary, public opinion, and response placeholder
-  const [summaries] = useState<Record<number, {
-    summary: string;
-    opinion: string;
-    response: string;
-  }>>({
-    0: {
-      summary: "Israel and Palestine conflict escalates with rocket attacks and military operations.",
-      opinion: "Most people are concerned about the humanitarian impact and want peace.",
-      response: "The global response is mixed, with calls for ceasefire and aid."
-    },
-    1: {
-      summary: "Historical background of Israel-Palestine enmity and territorial disputes.",
-      opinion: "People feel the conflict is deeply rooted and complex.",
-      response: "Experts suggest dialogue and international mediation."
-    },
-    2: {
-      summary: "Earthquake in Afghanistan causes casualties and destruction.",
-      opinion: "Public sympathy and calls for relief efforts are high.",
-      response: "Relief agencies are mobilizing to help affected areas."
-    },
-    3: {
-      summary: "Hamas launches rocket attacks, Israel responds with military force.",
-      opinion: "People are worried about escalation and civilian safety.",
-      response: "International organizations urge restraint and protection of civilians."
-    },
-    4: {
-      summary: "India wins gold in Asian Games cricket after rain cancels final.",
-      opinion: "Fans are proud and celebrate the achievement.",
-      response: "Sports authorities commend the team's performance."
-    },
-    5: {
-      summary: "Airport theft incidents highlight security concerns for travelers.",
-      opinion: "Travelers demand stricter security and accountability.",
-      response: "Airports are reviewing and upgrading security protocols."
-    },
-    6: {
-      summary: "Israel launches military operations in Gaza after Hamas attacks.",
-      opinion: "Global opinion is divided, with many calling for peace.",
-      response: "Diplomatic efforts are underway to de-escalate the situation."
-    },
-    7: {
-      summary: "Flash floods in Sikkim caused by glacial lake outburst.",
-      opinion: "People are concerned about climate change and disaster preparedness.",
-      response: "Government and NGOs are providing relief and support."
-    },
-    8: {
-      summary: "Political analysis of Rajasthan elections and seat distribution.",
-      opinion: "Voters are interested in fair elections and transparent governance.",
-      response: "Election commission ensures proper conduct of polls."
-    },
-    9: {
-      summary: "GST rate cut on millet products to reduce prices.",
-      opinion: "Consumers welcome the price reduction and support healthy foods.",
-      response: "Retailers adjust prices and promote millet products."
-    },
-    10: {
-      summary: "Commercial real estate demand rises in Tier 2 and 3 cities.",
-      opinion: "Local businesses are optimistic about growth opportunities.",
-      response: "Government supports infrastructure development."
-    },
-    11: {
-      summary: "A judge and a criminal reunite as former classmates in a viral story.",
-      opinion: "People are moved by the emotional reunion and life lessons.",
-      response: "Social media shares the story widely, sparking discussions."
-    },
-    12: {
-      summary: "Land dispute in Deoria leads to legal and administrative action.",
-      opinion: "Locals want fair resolution and justice.",
-      response: "Authorities investigate and take necessary steps."
-    },
-    13: {
-      summary: "Film released in sign language for accessibility to the hearing impaired.",
-      opinion: "Public appreciates inclusive efforts in entertainment.",
-      response: "Filmmakers plan more accessible releases."
-    },
-    14: {
-      summary: "Alien-themed Tamil film excites audiences with its teaser.",
-      opinion: "Fans are excited for innovative storytelling.",
-      response: "Producers ramp up marketing and engagement."
-    },
-    15: {
-      summary: "Akshay Kumar's film Mission RaniGanj has a weak box office opening.",
-      opinion: "Audience is disappointed but hopeful for improvement.",
-      response: "Film critics analyze reasons for low turnout."
-    },
-    16: {
-      summary: "Man wears a garland of applications to highlight unresolved issues at Tehsil Diwas.",
-      opinion: "Citizens relate to bureaucratic challenges.",
-      response: "Officials promise to address grievances."
-    },
-    17: {
-      summary: "Shakti Didi campaign in UP aims to empower and inform women.",
-      opinion: "Women welcome the initiative and seek more support.",
-      response: "Government expands awareness and outreach."
-    },
-    18: {
-      summary: "Land dispute in Deoria leads to multiple murders and legal action.",
-      opinion: "Community demands justice and safety.",
-      response: "Police and administration take strict action."
-    }
-  });
+  useEffect(() => setIsMounted(true), []);
 
-  // Modal state
+  const [language, setLanguage] = useState<"English" | "Hindi">("English");
+  const selectedValue = useMemo(() => language, [language]);
+
+  const [newsData, setNewsData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // prefer env var; fallback to empty string so missing key shows a readable error
+  const GNEWS_API_KEY = process.env.NEXT_PUBLIC_GNEWS_API_KEY || "";
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalIdx, setModalIdx] = useState<number | null>(null);
 
-  // Modal content
+  useEffect(() => {
+    const aborter = new AbortController();
+    async function fetchNews() {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!GNEWS_API_KEY) {
+          setError("GNews API key is not configured. Set NEXT_PUBLIC_GNEWS_API_KEY in .env.local");
+          setNewsData([]);
+          return;
+        }
+        const lang = language === "English" ? "en" : "hi";
+        const url = `https://gnews.io/api/v4/top-headlines?lang=${lang}&country=in&max=24&apikey=${GNEWS_API_KEY}`;
+        const res = await fetch(url, { signal: aborter.signal });
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const data = await res.json();
+        setNewsData(data?.articles || []);
+      } catch (err: any) {
+        if (err.name !== "AbortError") setError(String(err.message || err));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchNews();
+    return () => aborter.abort();
+  }, [language, GNEWS_API_KEY]);
+
+  const openModal = (idx: number) => {
+    setModalIdx(idx);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalIdx(null);
+  };
+
   const renderModal = () => {
-    if (modalIdx === null) return null;
-    const info = summaries[modalIdx];
+    if (!isMounted || !modalOpen || modalIdx === null) return null;
+    const article = newsData[modalIdx];
+    // generate a short AI-like summary from available text
+    const text = String(article?.content || article?.description || article?.title || "");
+    const summarize = (t: string) => {
+      if (!t) return "No summary available.";
+      // split into sentences and pick first 2, fallback to truncate
+      const s = t.replace(/\n+/g, " ").split(/(?<=[.?!])\s+/);
+      if (s.length >= 2) return (s[0] + (s[1] ? " " + s[1] : "")).trim();
+      if (t.length <= 240) return t;
+      return t.slice(0, 220).trim() + "...";
+    };
+
+    const detectEmotion = (t: string) => {
+      const lower = t.toLowerCase();
+      const posWords = ["good","positive","success","win","benefit","improve","happy","gain","praise","support"];
+      const negWords = ["bad","negative","loss","fail","concern","angry","crisis","attack","kill","death","problem"];
+      let score = 0;
+      posWords.forEach(w => { if (lower.includes(w)) score += 1; });
+      negWords.forEach(w => { if (lower.includes(w)) score -= 1; });
+      if (score > 0) return "Positive";
+      if (score < 0) return "Negative";
+      return "Neutral";
+    };
+
+    const summary = summarize(text);
+    const emotion = detectEmotion(text);
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full relative animate-fade-in">
-          <button className="absolute top-3 right-3 text-2xl font-bold text-gray-400 hover:text-pink-500" onClick={() => setModalOpen(false)}>&times;</button>
-          <h2 className="text-3xl font-extrabold text-purple-700 mb-4">AI Article Summary</h2>
-          return (
-            <div>
-              {loading ? (
-                <div className="flex justify-center items-center text-2xl py-10">Loading latest articles...</div>
-              ) : error ? (
-                <div className="flex justify-center items-center text-xl text-red-600 py-10">{error}</div>
-              ) : newsData?.length > 0 ? (
-                <>
-                  <div className="flex justify-center items-center">
-                    <div className="flex justify-center items-center text-3xl font-bold m-6">
-                      LATEST ARTICLES IN 
-                    </div>
-                    <div>
-                      <Dropdown>
-                        <DropdownTrigger>
-                          <Button variant="bordered" className="capitalize px-6 py-2 text-2xl font-bold bg-white/80 rounded-xl shadow hover:bg-purple-100 transition-colors duration-200">
-                            {selectedValue === "English" ? "English" : "हिन्दी"}
-                            <img src="/dropdown.png" className="ml-2" width={24} height={24} alt="" />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                          aria-label="Language selection"
-                          variant="flat"
-                          disallowEmptySelection
-                          selectionMode="single"
-                          selectedKeys={selectedKeys}
-                          onSelectionChange={(keys) => setSelectedKeys(new Set(Array.from(keys as Set<string>)))}
-                        >
-                          <DropdownItem className="w-[120px] text-xl font-bold text-blue-700 hover:bg-blue-100" key="English">English</DropdownItem>
-                          <DropdownItem className="w-[120px] text-xl font-bold text-pink-700 hover:bg-pink-100" key="Hindi">हिन्दी</DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown>
-                    </div>
-                  </div>
-                  {isMounted && (
-                    <div className="flex justify-center items-center text-lg text-gray-600 mb-2">
-                      {`Last updated: ${new Date().toLocaleString()}`}
-                    </div>
-                  )}
-                  <hr className="mb-3" />
-
-                  <div className="grid grid-cols-3 gap-4">
-                    {newsData.map((news: any, idx: number) => (
-                      <Card
-                        imgUrl={news.image || "news.jpg"}
-                        Title={<span className="font-extrabold">{news.title}</span>}
-                        categories={<span className="flex justify-center items-center" style={{backgroundColor: "#d3d3d3", color: "black", fontWeight: "bold", padding: "5px"}}>{news.source?.name || "News"}</span>}
-                        description={<span>About- {news.description ? news.description.slice(0, 60) + "..." : "No description."}<br /><strong>AI Summary:</strong> {news.description ? news.description.slice(0, 60) + "..." : "Loading summary..."}<br /><button className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-pink-500 text-white rounded-full shadow hover:scale-105 transition-transform duration-200 text-sm font-semibold" onClick={() => { setModalIdx(idx); setModalOpen(true); }}>View Full Summary & Opinion</button></span>}
-                        negative={<span style={{ textDecoration: "underline", color: "red" }}>{Math.floor(Math.random() * 40) + 10}%</span>}
-                        neutral={<span style={{ textDecoration: "underline", color: "orange" }}>{Math.floor(Math.random() * 40) + 30}%</span>}
-                        positive={<span style={{ textDecoration: "underline", color: "green" }}>{Math.floor(Math.random() * 30) + 30}%</span>}
-                        url={news.url}
-                      />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="flex justify-center items-center text-2xl py-10">No articles found.</div>
-              )}
-            </div>
-          );
-                  <Button variant="bordered" className="capitalize px-6 py-2 text-2xl font-bold bg-white/80 rounded-xl shadow hover:bg-purple-100 transition-colors duration-200">
-                    {selectedValue === "English" ? "English" : "हिन्दी"}
-                    <img src="/dropdown.png" className="ml-2" width={24} height={24} alt="" />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Language selection"
-=======
-  const [newsData, setNewsData] = useState([]);
-  const apiUrl = "http://127.0.0.1:8000/";
-  useEffect(() => {
-    // Fetch data from the API
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        setNewsData(data["News"]);
-        for (let i = 0; i < data["News"].length; i++) {
-          const negative = parseFloat(
-            data["News"][i]["Sentiment_Score"].split(" ")[1]
-          );
-          if (negative >= 0.5) {
-            fetch("https://email-kcr3.onrender.com/sendEmail", {
-              // Adding method type
-              method: "POST",
-
-              // Adding body or contents to send
-              body: JSON.stringify({
-                title: data["News"][i]["Title"],
-                url: data["News"][i]["URL"],
-              }),
-
-              // Adding headers to the request
-              headers: {
-                "Content-type": "application/json; charset=UTF-8",
-              },
-            })
-              // Converting to JSON
-              .then((response) => response.json())
-
-              // Displaying results to console
-              .then((json) => console.log(json));
-          }
-        }
-      })
-      .catch((error) => console.error("Error fetching data: ", error));
-  }, []); // The empty array means this effect runs once after initial render
-
-  const newsMap = {
-    Sports: "Ministry of Youth Affairs and Sports",
-    Culture: "Ministry of Culture",
-    International: "Ministry of External Affairs",
-    Politics: "Ministry of Home Affairs",
-    Science: "Ministry of Science and Technology",
-    Technology: "Ministry of Electronics and Information Technology",
-    Business: "Ministry of Finance",
-    Entertainment: "Ministry of Information and Broadcasting",
-    Judiciary: "Ministry of Law and Justice",
-    Crime: "Department of Internal Security",
+        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-xl w-full relative">
+          <button className="absolute top-3 right-3 text-2xl font-bold text-gray-400 hover:text-pink-500" onClick={closeModal}>
+            &times;
+          </button>
+          <h2 className="text-2xl font-bold mb-3">AI Article Summary & Emotion</h2>
+          <p className="mb-2"><strong>Title:</strong> {article?.title}</p>
+          <p className="mb-2"><strong>Summary:</strong> {summary}</p>
+          <p className="mb-2"><strong>Emotion:</strong> {emotion}</p>
+          <p className="mb-2"><strong>Source:</strong> {article?.source?.name || "Unknown"}</p>
+          <a className="text-sm text-blue-600 hover:underline" href={article?.url} target="_blank" rel="noreferrer">Read original</a>
+        </div>
+      </div>
+    );
   };
 
   return (
     <>
-      {newsData?.length > 0 ? (
-        <>
-          <div className="flex justify-center items-center">
-            <div className="flex justify-center items-center text-3xl font-bold m-6">
-              LATEST ARTICLES IN 
-            </div>
-            <div>
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button variant="bordered" className="capitalize">
-                    <div className="flex uppercase justify-center items-center text-3xl font-bold -ml-2">
-                    {selectedValue}
-                    <img src="/dropdown.png" className="ml-1" width={20} height = {20} alt="" />
-                    </div>
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Single selection example"
->>>>>>> Stashed changes
-                  variant="flat"
-                  disallowEmptySelection
-                  selectionMode="single"
-                  selectedKeys={selectedKeys}
-<<<<<<< Updated upstream
-                  onSelectionChange={(keys) => setSelectedKeys(new Set(Array.from(keys as Set<string>)))}
-                >
-                  <DropdownItem className="w-[120px] text-xl font-bold text-blue-700 hover:bg-blue-100" key="English">English</DropdownItem>
-                  <DropdownItem className="w-[120px] text-xl font-bold text-pink-700 hover:bg-pink-100" key="Hindi">हिन्दी</DropdownItem>
-=======
-                  onSelectionChange={setSelectedKeys}
-                >
-                  <DropdownItem className="w-[100px] text-xl outline-none  hover:outline-none hover:underline" key="English">English</DropdownItem>
-                  <DropdownItem className="w-[100px] text-xl hover:outline-none hover:underline" key="Hindi">Hindi</DropdownItem>
->>>>>>> Stashed changes
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-          </div>
-<<<<<<< Updated upstream
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-4">
+          <div className="text-3xl font-extrabold">LATEST ARTICLES IN</div>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button size="lg" variant="bordered" className="capitalize">{selectedValue === "English" ? "English" : "हिन्दी"}</Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Language selection" selectionMode="single" onSelectionChange={(keys) => {
+              const arr = Array.from(keys as Set<string>);
+              setLanguage(arr[0] === "Hindi" ? "Hindi" : "English");
+            }}>
+              <DropdownItem key="English">English</DropdownItem>
+              <DropdownItem key="Hindi">Hindi</DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
 
-          {/* Show last updated time only after mount to avoid hydration error */}
-          {isMounted && (
-            <div className="flex justify-center items-center text-lg text-gray-600 mb-2">
-              {`Last updated: ${new Date().toLocaleString()}`}
-            </div>
-          )}
-          <hr className="mb-3" />
+        {isMounted && <div className="text-sm text-gray-600">{`Last updated: ${new Date().toLocaleString()}`}</div>}
+      </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            {newsData.map((news: any, idx: number) => (
-              <Card
-                imgUrl={news.image || "news.jpg"}
-                Title={<span className="font-extrabold">{news.title}</span>}
-                categories={<span className="flex justify-center items-center" style={{backgroundColor: "#d3d3d3", color: "black", fontWeight: "bold", padding: "5px"}}>{news.source?.name || "News"}</span>}
-                description={<span>About- {news.description ? news.description.slice(0, 60) + "..." : "No description."}<br /><strong>AI Summary:</strong> {news.description ? news.description.slice(0, 60) + "..." : "Loading summary..."}<br /><button className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-pink-500 text-white rounded-full shadow hover:scale-105 transition-transform duration-200 text-sm font-semibold" onClick={() => { setModalIdx(idx); setModalOpen(true); }}>View Full Summary & Opinion</button></span>}
-                negative={<span style={{ textDecoration: "underline", color: "red" }}>{Math.floor(Math.random() * 40) + 10}%</span>}
-                neutral={<span style={{ textDecoration: "underline", color: "orange" }}>{Math.floor(Math.random() * 40) + 30}%</span>}
-                positive={<span style={{ textDecoration: "underline", color: "green" }}>{Math.floor(Math.random() * 30) + 30}%</span>}
-                url={news.url}
-              />
-            ))}
-    </div>
-  {/* Only render modal after mount to avoid hydration error */}
-  {isMounted && modalOpen && renderModal()}
-        </>
+      <hr className="my-4" />
+
+      {loading ? (
+        <div className="text-center py-10 text-xl">Loading latest articles...</div>
+      ) : error ? (
+        <div className="text-center py-10 text-red-600">{error}</div>
+      ) : newsData.length === 0 ? (
+        <div className="text-center py-10 text-xl">No articles found.</div>
       ) : (
-        <div className="flex justify-center items-center text-2xl py-10">No articles found.</div>
-=======
-          <hr className="mb-3" />
-
-          {selectedValue == "English" ? (
-            <>
-              <div className="grid grid-cols-3 gap-4">
-                {newsData?.map((news) => (
-                  <Card
-                    imgUrl={news["Categories"]}
-                    // Title={news["Title"]}
-                    Title={
-                      <span className="font-extrabold">
-                        {news["Title"]}
-                      </span>
-                    }
-                    // categories={news["Categories"]}
-                    categories={
-                      <span
-                      className="flex justify-center items-center"
-                        style={{
-                          backgroundColor: "#d3d3d3",
-                          color: "black",
-                          fontWeight: "bold",
-                          padding: "5px",
-                        }}
-                      >
-                        {newsMap[news["Categories"]]}
-                      </span>
-                    }
-                    description={
-                      <span>
-                        About- {news["Description"].slice(0, 30) + "..."}
-                      </span>
-                    }
-                    // description={news["Description"].slice(0, 30) + '...'}
-                    // negative={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100)}
-                    // neutral={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
-                    // positive={100 - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100) - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
-                    negative={
-                      <span
-                        style={{ textDecoration: "underline", color: "red" }}
-                      >
-                        {Math.round(
-                          parseFloat(news["Sentiment_Score"].split(" ")[1]) *
-                            100
-                        )}
-                      </span>
-                    }
-                    neutral={
-                      <span
-                        style={{ textDecoration: "underline", color: "orange" }}
-                      >
-                        {Math.round(
-                          parseFloat(news["Sentiment_Score"].split(" ")[2]) *
-                            100
-                        )}
-                      </span>
-                    }
-                    positive={
-                      <span
-                        style={{ textDecoration: "underline", color: "green" }}
-                      >
-                        {100 -
-                          Math.round(
-                            parseFloat(news["Sentiment_Score"].split(" ")[1]) *
-                              100
-                          ) -
-                          Math.round(
-                            parseFloat(news["Sentiment_Score"].split(" ")[2]) *
-                              100
-                          )}
-                      </span>
-                    }
-                    url={news["URL"]}
-                  />
-                ))}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="grid grid-cols-3 gap-4">
-                {regionalNews?.map((news) => (
-                  <Card
-                    imgUrl={news["Categories"]}
-                    // Title={news["Title"]}
-                    Title={
-                      <span style={{ fontWeight: "bold" }}>
-                        {news["Title"]}
-                      </span>
-                    }
-                    // categories={news["Categories"]}
-                    categories={
-                      <span
-                      className="flex justify-center items-center"
-                        style={{
-                          backgroundColor: "#d3d3d3",
-                          color: "black",
-                          fontWeight: "bold",
-                          padding: "5px",
-                        }}
-                      >
-                        {newsMap[news["Categories"]]}
-                      </span>
-                    }
-                    description={
-                      <span>
-                        About- {news["Description"].slice(0, 30) + "..."}
-                      </span>
-                    }
-                    // description={news["Description"].slice(0, 30) + '...'}
-                    // negative={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100)}
-                    // neutral={Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
-                    // positive={100 - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[1]) * 100) - Math.round(parseFloat(news["Sentiment_Score"].split(' ')[2]) * 100)}
-                    negative={
-                      <span
-                        style={{ textDecoration: "underline", color: "red" }}
-                      >
-                        {Math.round(
-                          parseFloat(news["Sentiment_Score"].split(" ")[1]) *
-                            100
-                        )}
-                      </span>
-                    }
-                    neutral={
-                      <span
-                        style={{ textDecoration: "underline", color: "orange" }}
-                      >
-                        {Math.round(
-                          parseFloat(news["Sentiment_Score"].split(" ")[2]) *
-                            100
-                        )}
-                      </span>
-                    }
-                    positive={
-                      <span
-                        style={{ textDecoration: "underline", color: "green" }}
-                      >
-                        {100 -
-                          Math.round(
-                            parseFloat(news["Sentiment_Score"].split(" ")[1]) *
-                              100
-                          ) -
-                          Math.round(
-                            parseFloat(news["Sentiment_Score"].split(" ")[2]) *
-                              100
-                          )}
-                      </span>
-                    }
-                    url={news["URL"]}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <div className="flex justify-center items-center text-3xl font-bold m-6">
-            LATEST ARTICLES
-          </div>
-          <hr className="mb-3" />
-          <div className="flex justify-center items-center text-2xl">
-            Loading the latest articles...
-          </div>
-          {/* <div className="flex justify-center items-center space-x-8">
-            <Card imgUrl="https://source.unsplash.com/NyA2B7xovMw" />
-            <Card imgUrl="https://source.unsplash.com/2seMu5EqCDw" />
-            <Card imgUrl="https://source.unsplash.com/cHvT5F8cW50" />
-          </div> */}
-        </>
->>>>>>> Stashed changes
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {newsData.map((news, idx) => (
+            <Card
+              key={idx}
+              imgUrl={news.image}
+              Title={<span className="font-bold">{news.title}</span>}
+              categories={<span className="px-2 py-1 bg-gray-200 rounded">{news.source?.name || "News"}</span>}
+              description={<span>{news.description ? `${news.description.slice(0, 120)}...` : "No description."}</span>}
+              negative={`${Math.floor(Math.random() * 40) + 10}%`}
+              neutral={`${Math.floor(Math.random() * 40) + 30}%`}
+              positive={`${Math.floor(Math.random() * 30) + 30}%`}
+              url={news.url}
+              onSummaryClick={() => openModal(idx)}
+            />
+          ))}
+        </div>
       )}
+
+      {renderModal()}
     </>
   );
 };
 
-export default latestPosts;
-
+export default LatestPosts;
 // heading, body, catgeory, url

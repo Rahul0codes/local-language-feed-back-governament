@@ -3,20 +3,16 @@ import { Inter } from "next/font/google";
 import Header from "../components/header";
 import Categories from "@/components/categories";
 import LatestPosts from "@/components/latestPosts";
-import Card from "@/components/card";
-const inter = Inter({ subsets: ["latin"] });
-<<<<<<< Updated upstream
-
+import ImageGallery from "@/components/ImageGallery";
 import { useState } from "react";
 
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  // ...existing code...
   const [showSummary, setShowSummary] = useState(false);
   const [summaryText, setSummaryText] = useState("");
   const [emotion, setEmotion] = useState("");
 
-  // Example summary/emotion handler
   const handleSummaryRequest = (description: string, sentiment: string) => {
     setSummaryText(description.slice(0, 100) + "...");
     let score = [0, 0, 0];
@@ -35,6 +31,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
       <Header />
+
       {/* Hero Section */}
       <section className="w-full flex flex-col items-center justify-center py-10 px-4 text-center bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 shadow-lg rounded-b-3xl mb-8">
         <h1 className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-4 tracking-tight">Local Language Feedback Dashboard</h1>
@@ -53,6 +50,7 @@ export default function Home() {
         >
           Get Article Summary & Emotion
         </button>
+
         {showSummary && (
           <div className="p-6 bg-white rounded-2xl shadow-xl w-full max-w-xl">
             <h2 className="text-2xl font-bold mb-2 text-purple-700">AI Summary</h2>
@@ -62,24 +60,14 @@ export default function Home() {
         )}
       </div>
 
-      {/* Main Content Section */}
+      {/* Supporting sections */}
       <div className="container mx-auto px-4">
+        <Categories />
+        <div className="mt-6 mb-6">
+          <ImageGallery />
+        </div>
         <LatestPosts />
       </div>
     </div>
-=======
-import ImageGallery from "@/components/ImageGallery";
-
-export default function Home() {
-  return (
-    <>
-      <Header />
-      <Categories />
-      <div className="mt-4 mb-4">
-        <ImageGallery />
-      </div>
-     <LatestPosts />
-    </>
->>>>>>> Stashed changes
   );
 }
