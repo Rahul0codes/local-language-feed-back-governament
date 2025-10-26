@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import Card from "./cardClean";
 
 const LatestPosts: FC = () => {
@@ -15,8 +16,10 @@ const LatestPosts: FC = () => {
   // prefer env var; fallback to empty string so missing key shows a readable error
   const GNEWS_API_KEY = process.env.NEXT_PUBLIC_GNEWS_API_KEY || "";
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalIdx, setModalIdx] = useState<number | null>(null);
+  
+
+  const router = useRouter();
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   useEffect(() => {
     const aborter = new AbortController();
@@ -46,66 +49,15 @@ const LatestPosts: FC = () => {
     return () => aborter.abort();
   }, [language, GNEWS_API_KEY]);
 
-  const openModal = (idx: number) => {
-    setModalIdx(idx);
-    setModalOpen(true);
-  };
+  // read tag from query string and keep in state
+  useEffect(() => {
+    if (!router) return;
+    const tag = router.query.tag;
+    if (typeof tag === "string" && tag.trim().length > 0) setSelectedTag(tag.trim());
+    else setSelectedTag(null);
+  }, [router.query.tag]);
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalIdx(null);
-  };
-
-  const renderModal = () => {
-    if (!isMounted || !modalOpen || modalIdx === null) return null;
-    const article = newsData[modalIdx];
-    // generate a short AI-like summary from available text
-    const text = String(article?.content || article?.description || article?.title || "");
-    const summarize = (t: string) => {
-      if (!t) return "No summary available.";
-      // split into sentences and pick first 2, fallback to truncate
-      const s = t.replace(/\n+/g, " ").split(/(?<=[.?!])\s+/);
-      if (s.length >= 2) return (s[0] + (s[1] ? " " + s[1] : "")).trim();
-      if (t.length <= 240) return t;
-      return t.slice(0, 220).trim() + "...";
-    };
-
-    const detectEmotion = (t: string) => {
-      const lower = t.toLowerCase();
-      const posWords = ["good","positive","success","win","benefit","improve","happy","gain","praise","support"];
-      const negWords = ["bad","negative","loss","fail","concern","angry","crisis","attack","kill","death","problem"];
-      // Hindi sentiment words
-      const posHi = ["अच्छा","सकारात्मक","सफल","खुश","लाभ","समर्थन","सराहना"];
-      const negHi = ["बुरा","नाकारात्मक","हानि","हार","गुस्सा","आक्रमण","मृत" ,"समस्या","चिंता"];
-      let score = 0;
-      posWords.forEach(w => { if (lower.includes(w)) score += 1; });
-      negWords.forEach(w => { if (lower.includes(w)) score -= 1; });
-      posHi.forEach(w => { if (lower.includes(w)) score += 1; });
-      negHi.forEach(w => { if (lower.includes(w)) score -= 1; });
-      if (score > 0) return "Positive";
-      if (score < 0) return "Negative";
-      return "Neutral";
-    };
-
-    const summary = summarize(text);
-    const emotion = detectEmotion(text);
-
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-xl w-full relative">
-          <button className="absolute top-3 right-3 text-2xl font-bold text-gray-400 hover:text-pink-500" onClick={closeModal}>
-            &times;
-          </button>
-          <h2 className="text-2xl font-bold mb-3">AI Article Summary & Emotion</h2>
-          <p className="mb-2"><strong>Title:</strong> {article?.title}</p>
-          <p className="mb-2"><strong>Summary:</strong> {summary}</p>
-          <p className="mb-2"><strong>Emotion:</strong> {emotion}</p>
-          <p className="mb-2"><strong>Source:</strong> {article?.source?.name || "Unknown"}</p>
-          <a className="text-sm text-blue-600 hover:underline" href={article?.url} target="_blank" rel="noreferrer">Read original</a>
-        </div>
-      </div>
-    );
-  };
+  
 
   // Heuristic to decide if an article is political: check explicit category or keywords in title/description/content
   const isPolitical = (a: any) => {
@@ -121,6 +73,29 @@ const LatestPosts: FC = () => {
   };
 
   const newsPolitical = newsData.filter(isPolitical);
+  // if a tag is selected via the categories menu, filter further by tag keywords
+  // mapping from UI category labels to keyword lists for broader matching
+  const tagKeywordMap: Record<string, string[]> = {
+    "external affairs": ["external","foreign","diplom","embassy","ambassador","foreign minister","bilateral","international"],
+    "law and justice": ["court","judge","supreme court","high court","law","justice","verdict","judiciary"],
+    "youth affairs and sports": ["youth","sports","player","athlete","olympic","asian games","cricket","football","tournament"],
+    "finance": ["finance","economy","budget","tax","rbi","gst","inflation","fiscal","bank"],
+    "internal security": ["security","police","insurgency","terror","attack","internal security","counter"],
+    "culture": ["culture","festival","heritage","arts","museum","cinema","film"],
+    "information and broadcasting": ["broadcast","media","television","information","broadcaster","press","news agency"],
+    "home affairs": ["home","police","internal","migration","citizen","home ministry"],
+    "science and technology": ["science","technology","research","space","isro","innovation","tech","ai","machine learning"],
+    "electronics and information technology": ["electronics","information technology","it","software","semiconductor","chip","digital","telecom"],
+  };
+
+  const displayedNews = selectedTag
+    ? newsPolitical.filter((a) => {
+        const text = ((a.title || "") + " " + (a.description || "") + " " + (a.source?.name || "")).toString().toLowerCase();
+        const key = selectedTag.toLowerCase();
+        const kws = tagKeywordMap[key] || [key];
+        return kws.some(k => text.includes(k));
+      })
+    : newsPolitical;
 
   return (
     <>
@@ -143,7 +118,26 @@ const LatestPosts: FC = () => {
           </div>
         </div>
 
-        {isMounted && <div className="text-sm text-gray-600">{`Last updated: ${new Date().toLocaleString()}`}</div>}
+        <div className="flex items-center gap-3">
+          {isMounted && <div className="text-sm text-gray-600">{`Last updated: ${new Date().toLocaleString()}`}</div>}
+          {selectedTag ? (
+            <div className="ml-3 px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold flex items-center gap-2">
+              <span>Showing:</span>
+              <span className="uppercase">{selectedTag}</span>
+              <button
+                onClick={() => {
+                  // clear tag and shallow-push to remove query
+                  router.push({ pathname: "/" }, undefined, { shallow: true });
+                  setSelectedTag(null);
+                }}
+                className="ml-2 px-2 py-1 rounded bg-white text-sm"
+                aria-label="Clear tag"
+              >
+                ×
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <hr className="my-4" />
@@ -155,8 +149,8 @@ const LatestPosts: FC = () => {
       ) : newsPolitical.length === 0 ? (
         <div className="text-center py-10 text-xl">No articles found.</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {newsPolitical.map((news, idx) => (
+        <div id="latest-posts" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displayedNews.map((news, idx) => (
             <Card
               key={idx}
               imgUrl={news.image || "/categories/images/politics3.jpg"}
@@ -167,17 +161,13 @@ const LatestPosts: FC = () => {
               neutral={`${Math.floor(Math.random() * 40) + 30}%`}
               positive={`${Math.floor(Math.random() * 30) + 30}%`}
               url={news.url}
-              onSummaryClick={() => {
-                // modal index refers to position in the filtered list; map it back to original newsData index
-                const originalIdx = newsData.findIndex(n => n.url === news.url && n.title === news.title);
-                openModal(originalIdx >= 0 ? originalIdx : 0);
-              }}
+              
             />
           ))}
         </div>
       )}
 
-      {renderModal()}
+  {/* AI modal removed as requested */}
     </>
   );
 };
