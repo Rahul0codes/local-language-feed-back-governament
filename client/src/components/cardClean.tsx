@@ -23,12 +23,15 @@ type CardProps = {
   neutral?: React.ReactNode;
   positive?: React.ReactNode;
   url?: string;
+  summary?: string;
+  emotion?: string;
 };
 
 const CardClean: React.FC<CardProps> = (props) => {
   const imgProp = props.imgUrl;
   const isExternal = typeof imgProp === "string" && (imgProp.startsWith("http://") || imgProp.startsWith("https://"));
   const imageFile = typeof imgProp === "string" && imgProp in categoryImageMap ? categoryImageMap[imgProp] : "crime.jpg";
+  const [showSummary, setShowSummary] = React.useState(false);
 
   return (
     <div className="flex justify-center items-center">
@@ -51,6 +54,26 @@ const CardClean: React.FC<CardProps> = (props) => {
             {props.categories}
           </h6>
           <p className="text-gray-800 text-base mb-2" id="news-desc">{props.description}</p>
+          {/* Inline AI summary area inside the card (collapsed by default) */}
+          {props.summary ? (
+            <div className="mt-2">
+              <button
+                onClick={() => setShowSummary(s => !s)}
+                className="px-3 py-1 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-full shadow hover:scale-105 transition-transform duration-150 text-sm font-semibold"
+              >
+                {showSummary ? "Hide Summary" : "View Summary"}
+              </button>
+              {showSummary && (
+                <div className="mt-3 bg-gray-50 p-3 rounded">
+                  <div className="font-semibold text-sm text-gray-700">AI Summary</div>
+                  <div className="text-sm text-gray-800 mt-1">{props.summary}</div>
+                  {props.emotion ? (
+                    <div className="mt-2 text-sm">Emotion: <span className="font-semibold">{props.emotion}</span></div>
+                  ) : null}
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
         <div className="flex justify-center items-center space-x-6 py-2">

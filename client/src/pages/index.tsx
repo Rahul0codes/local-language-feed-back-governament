@@ -4,30 +4,10 @@ import Header from "../components/header";
 import Categories from "@/components/categories";
 import LatestPosts from "@/components/latestPosts";
 import ImageGallery from "@/components/ImageGallery";
-import { useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [showSummary, setShowSummary] = useState(false);
-  const [summaryText, setSummaryText] = useState("");
-  const [emotion, setEmotion] = useState("");
-
-  const handleSummaryRequest = (description: string, sentiment: string) => {
-    setSummaryText(description.slice(0, 100) + "...");
-    let score = [0, 0, 0];
-    if (sentiment) {
-      try {
-        score = JSON.parse(sentiment.replace(/'/g, '"'));
-      } catch {}
-    }
-    const maxIdx = score.indexOf(Math.max(...score));
-    if (maxIdx === 0) setEmotion("Negative");
-    else if (maxIdx === 1) setEmotion("Neutral");
-    else setEmotion("Positive");
-    setShowSummary(true);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
       <Header />
@@ -39,25 +19,9 @@ export default function Home() {
         <img src="/main.jpg" alt="Main" className="rounded-2xl shadow-xl w-full max-w-3xl h-[300px] object-cover border-4 border-white" />
       </section>
 
-      {/* Interactive Summary Section */}
+      {/* Brief intro */}
       <div className="flex flex-col items-center justify-center mb-8">
-        <button
-          className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-3 rounded-full shadow-lg text-lg font-semibold hover:scale-105 transition-transform duration-200 mb-4"
-          onClick={() => handleSummaryRequest(
-            "This is a sample article description for summary and emotion analysis.",
-            "[0.2, 0.5, 0.3]"
-          )}
-        >
-          Get Article Summary & Emotion
-        </button>
-
-        {showSummary && (
-          <div className="p-6 bg-white rounded-2xl shadow-xl w-full max-w-xl">
-            <h2 className="text-2xl font-bold mb-2 text-purple-700">AI Summary</h2>
-            <p className="text-lg text-gray-700">{summaryText}</p>
-            <h3 className="mt-4 text-lg">Emotion: <span className="font-semibold text-pink-600">{emotion}</span></h3>
-          </div>
-        )}
+        <p className="text-lg text-white/90 max-w-2xl mx-auto">Browse the latest political news in English or Hindi. Click any article card to view an AI-style summary and the detected dominant emotion.</p>
       </div>
 
       {/* Supporting sections */}

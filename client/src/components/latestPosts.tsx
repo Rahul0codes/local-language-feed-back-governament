@@ -97,6 +97,51 @@ const LatestPosts: FC = () => {
       })
     : newsPolitical;
 
+  // Small summarizer and emotion detector to provide inline summaries per article
+  const summarizeText = (t: string) => {
+    if (!t) return "No summary available.";
+    const s = t.replace(/\n+/g, " ").split(/(?<=[.?!])\s+/);
+    if (s.length >= 2) return (s[0] + (s[1] ? " " + s[1] : "")).trim();
+    if (t.length <= 240) return t;
+    return t.slice(0, 220).trim() + "...";
+  };
+
+  // Return emotion label plus counts so UI percentages can be derived consistently
+  const detectEmotionData = (t: string) => {
+    if (!t) return { label: "Neutral", posCount: 0, negCount: 0 };
+    const lower = t.toLowerCase();
+    const posWords = ["good","positive","success","win","benefit","improve","happy","gain","praise","support"];
+    const negWords = ["bad","negative","loss","fail","concern","angry","crisis","attack","kill","death","problem"];
+    const posHi = ["अच्छा","सकारात्मक","सफल","खुश","लाभ","समर्थन","सराहना"];
+    const negHi = ["बुरा","नाकारात्मक","हानि","हार","गुस्सा","आक्रमण","मृत","समस्या","चिंता"];
+    let posCount = 0;
+    let negCount = 0;
+    posWords.forEach(w => { if (lower.includes(w)) posCount += 1; });
+    negWords.forEach(w => { if (lower.includes(w)) negCount += 1; });
+    posHi.forEach(w => { if (lower.includes(w)) posCount += 1; });
+    negHi.forEach(w => { if (lower.includes(w)) negCount += 1; });
+    let label = "Neutral";
+    if (posCount === 0 && negCount === 0) label = "Neutral";
+    else if (posCount > negCount) label = "Positive";
+    else if (negCount > posCount) label = "Negative";
+    return { label, posCount, negCount };
+  };
+
+  const computePercentages = (posCount: number, negCount: number) => {
+    // simple mapping: if no signals, show neutral 60/20/20
+    const totalSignals = posCount + negCount;
+    if (totalSignals === 0) return { positive: 20, neutral: 60, negative: 20 };
+    // base neutral as leftover
+    const positive = Math.round((posCount / totalSignals) * 70) + 15; // scale into 15-85
+    const negative = Math.round((negCount / totalSignals) * 70) + 15;
+    let neutral = 100 - (positive + negative);
+    // clamp
+    if (neutral < 0) {
+      neutral = 0;
+    }
+    return { positive, neutral, negative };
+  };
+
   return (
     <>
       <div className="flex flex-col items-center gap-3">
@@ -150,20 +195,27 @@ const LatestPosts: FC = () => {
         <div className="text-center py-10 text-xl">No articles found.</div>
       ) : (
         <div id="latest-posts" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayedNews.map((news, idx) => (
-            <Card
-              key={idx}
-              imgUrl={news.image || "/categories/images/politics3.jpg"}
-              Title={<span className="font-bold">{news.title}</span>}
-              categories={<span className="px-2 py-1 bg-gray-200 rounded">{news.source?.name || "News"}</span>}
-              description={<span>{news.description ? `${news.description.slice(0, 120)}...` : "No description."}</span>}
-              negative={`${Math.floor(Math.random() * 40) + 10}%`}
-              neutral={`${Math.floor(Math.random() * 40) + 30}%`}
-              positive={`${Math.floor(Math.random() * 30) + 30}%`}
-              url={news.url}
-              
-            />
-          ))}
+          {displayedNews.map((news, idx) => {
+            const contentText = (news.content || news.description || news.title || "").toString();
+            const summary = summarizeText(contentText);
+            const e = detectEmotionData(contentText);
+            const pct = computePercentages(e.posCount, e.negCount);
+            return (
+              <Card
+                key={idx}
+                imgUrl={news.image || "/categories/images/politics3.jpg"}
+                Title={<span className="font-bold">{news.title}</span>}
+                categories={<span className="px-2 py-1 bg-gray-200 rounded">{news.source?.name || "News"}</span>}
+                description={<span>{news.description ? `${news.description.slice(0, 120)}...` : "No description."}</span>}
+                negative={`${pct.negative}%`}
+                neutral={`${pct.neutral}%`}
+                positive={`${pct.positive}%`}
+                url={news.url}
+                summary={summary}
+                emotion={e.label}
+              />
+            );
+          })}
         </div>
       )}
 

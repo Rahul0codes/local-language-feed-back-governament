@@ -16,25 +16,34 @@ const categories = () => {
     "Electronics and Information Technology",
   ];
 
+  const currentTag = typeof router.query.tag === "string" ? router.query.tag.trim().toLowerCase() : null;
+
   const goToTag = (tag: string) => {
     // navigate to home with ?tag=... so LatestPosts can pick it up and filter
     router.push({ pathname: "/", query: { tag } }, undefined, { shallow: true });
-    // optionally scroll to posts
-    const el = document.getElementById("latest-posts");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    // scroll to posts after a short delay so the element exists
+    setTimeout(() => {
+      const el = document.getElementById("latest-posts");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }, 120);
   };
 
   return (
-    <div className="flex justify-center items-center space-x-6 md:space-x-20 pt-3 font-bold bg-gray-50 pb-3 pl-5 pr-5 overflow-x-auto">
-      {items.map((it) => (
-        <button
-          key={it}
-          onClick={() => goToTag(it)}
-          className="whitespace-nowrap px-3 py-2 rounded-md hover:scale-[1.1] transition-transform duration-200"
-        >
-          {it}
-        </button>
-      ))}
+    <div className="flex items-center gap-4 pt-3 font-bold bg-gray-50 pb-3 pl-4 pr-4 overflow-x-auto"> 
+      {items.map((it) => {
+        const key = it.toLowerCase();
+        const active = currentTag === key;
+        return (
+          <button
+            key={it}
+            onClick={() => goToTag(it)}
+            aria-current={active ? "true" : undefined}
+            className={`whitespace-nowrap px-3 py-2 rounded-md transition-transform duration-150 ${active ? "bg-blue-600 text-white shadow" : "hover:scale-105 bg-white border"}`}
+          >
+            {it}
+          </button>
+        );
+      })}
     </div>
   );
 };
