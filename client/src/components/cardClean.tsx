@@ -14,7 +14,19 @@ const categoryImageMap: Record<string, string> = {
   Business: "business.jpg",
 };
 
-const CardClean: React.FC<any> = (props) => {
+type CardProps = {
+  imgUrl?: string;
+  Title?: React.ReactNode;
+  categories?: React.ReactNode;
+  description?: React.ReactNode;
+  negative?: React.ReactNode;
+  neutral?: React.ReactNode;
+  positive?: React.ReactNode;
+  url?: string;
+  onSummaryClick?: () => void;
+};
+
+const CardClean: React.FC<CardProps> = (props) => {
   const imgProp = props.imgUrl;
   const isExternal = typeof imgProp === "string" && (imgProp.startsWith("http://") || imgProp.startsWith("https://"));
   const imageFile = typeof imgProp === "string" && imgProp in categoryImageMap ? categoryImageMap[imgProp] : "crime.jpg";
@@ -54,10 +66,18 @@ const CardClean: React.FC<any> = (props) => {
           </div>
         </div>
 
-        <div className="flex justify-center items-center pt-3">
+        <div className="flex justify-center items-center gap-4 pt-3">
           <a className="text-lg font-bold text-blue-600 hover:underline hover:text-pink-500 transition-colors duration-200" target="_blank" rel="noreferrer" href={props.url}>
             Read More
           </a>
+          {props.onSummaryClick ? (
+            <button
+              onClick={props.onSummaryClick}
+              className="px-3 py-1 bg-gradient-to-r from-blue-500 to-pink-500 text-white rounded-full shadow hover:scale-105 transition-transform duration-200 text-sm font-semibold"
+            >
+              Summary & Emotion
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
