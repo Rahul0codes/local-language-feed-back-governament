@@ -39,12 +39,13 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 
 const ImageGallery = () => {
   //Array of Images
+  // Use topic-relevant Unsplash images (politics/government/election) via the source API
   const images = [
-    "https://source.unsplash.com/m_-8_AhhJjE",
-    "https://source.unsplash.com/wdTpPg4ukd8",
-    "https://source.unsplash.com/Bd7gNnWJBkU",
-    "https://source.unsplash.com/F2qh3yjz6Jk",
-    "https://source.unsplash.com/D6Tu_L3chLE",
+    "https://source.unsplash.com/1600x900/?politics,government",
+    "https://source.unsplash.com/1600x900/?election,parliament",
+    "https://source.unsplash.com/1600x900/?protest,demonstration",
+    "https://source.unsplash.com/1600x900/?press,media",
+    "https://source.unsplash.com/1600x900/?politician,assembly",
   ];
 
   //These are custom properties for zoom effect while slide-show
