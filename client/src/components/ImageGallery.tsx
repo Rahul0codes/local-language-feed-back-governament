@@ -67,17 +67,19 @@ const ImageGallery = () => {
   return (
     <div className="w-full h-[70vh]">
       <Zoom {...zoomInProperties}>
-        {images.map((each, index) => (
-          <div
-            key={index}
-            className="flex justify-center md:items-center items-start w-screen h-[70vh] relative"
-          >
-            <img className="w-screen opacity-80" src={each} alt={`slide-${index}`} />
-            {/* <p className="absolute md:top-80 top-40 inset-x-1/4 text-center z-10 md:text-2xl text-3xl bold text-white font-bold uppercase">
-                Welcome To News Analysis
-            </p> */}
-          </div>
-        ))}
+          {images.map((each, index) => (
+            <div key={index} className="w-full h-[70vh] relative">
+              {/* render as background block so missing/cors issues don't show a broken img icon */}
+              <div
+                role="img"
+                aria-label={`slide-${index}`}
+                className="w-full h-full bg-center bg-cover opacity-90"
+                style={{
+                  backgroundImage: `url('${each}'), url('https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1600&q=80')`,
+                }}
+              />
+            </div>
+          ))}
       </Zoom>
     </div>
   );
