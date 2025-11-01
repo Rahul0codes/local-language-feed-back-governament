@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Inter } from "next/font/google";
 import Header from "../components/header";
 import Categories from "@/components/categories";
@@ -13,16 +12,22 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="w-full flex flex-col items-center justify-center py-10 px-4 text-center bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 shadow-lg rounded-b-3xl mb-8">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-4 tracking-tight">Local Language Feedback Dashboard</h1>
-        <p className="text-xl md:text-2xl text-white/90 mb-6 max-w-2xl mx-auto">Get the latest news, summaries, and sentiment analysis in your preferred language. Experience a modern, interactive dashboard for multilingual feedback and insights.</p>
-        <img src="/main.jpg" alt="Main" className="rounded-2xl shadow-xl w-full max-w-3xl h-[300px] object-cover border-4 border-white" />
+      <section
+        className="w-full flex items-center justify-center text-center shadow-lg rounded-b-3xl mb-8"
+        style={{
+          minHeight: "420px",
+          backgroundImage: "linear-gradient(rgba(18,24,39,0.45), rgba(99,102,241,0.15)), url('https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1600&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="relative z-10 py-16 px-6 w-full">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-4 tracking-tight">WELCOME TO NEWS ANALYSIS</h1>
+          <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">Browse the latest political news in English or Hindi. Click any article card to view an AI-style summary and the detected dominant emotion.</p>
+        </div>
       </section>
 
-      {/* Brief intro */}
-      <div className="flex flex-col items-center justify-center mb-8">
-        <p className="text-lg text-white/90 max-w-2xl mx-auto">Browse the latest political news in English or Hindi. Click any article card to view an AI-style summary and the detected dominant emotion.</p>
-      </div>
+      {/* brief intro removed to avoid duplication (hero already contains this copy) */}
 
       {/* Supporting sections */}
       <div className="container mx-auto px-4">

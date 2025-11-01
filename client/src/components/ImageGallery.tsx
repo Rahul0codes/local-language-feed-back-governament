@@ -72,10 +72,7 @@ const ImageGallery = () => {
             key={index}
             className="flex justify-center md:items-center items-start w-screen h-[70vh] relative"
           >
-            <img className="w-screen opacity-80" src={each} />
-            <h1 className="absolute md:top-60 top-24 -mt-4 inset-x-1/4 text-center z-10 md:text-6xl text-6xl bold text-white font-bold uppercase">
-            Welcome To News Analysis
-            </h1>
+            <img className="w-screen opacity-80" src={each} alt={`slide-${index}`} />
             {/* <p className="absolute md:top-80 top-40 inset-x-1/4 text-center z-10 md:text-2xl text-3xl bold text-white font-bold uppercase">
                 Welcome To News Analysis
             </p> */}

@@ -42,7 +42,15 @@ const CardClean: React.FC<CardProps> = (props) => {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imgProp} alt="news" className="w-full h-[200px] object-cover" />
           ) : (
-            <Image src={`/categories/images/${imageFile}`} width={400} height={200} alt={String(imgProp)} className="object-cover w-full h-[200px]" />
+            // Use CSS background with a remote fallback so missing local files won't show a broken image icon
+            <div
+              role="img"
+              aria-label={String(imgProp || "news image")}
+              className="w-full h-[200px] bg-center bg-cover"
+              style={{
+                backgroundImage: `url('/categories/images/${imageFile}'), url('https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=60')`,
+              }}
+            />
           )}
         </div>
 

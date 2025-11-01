@@ -10,6 +10,9 @@ const LatestPosts: FC = () => {
   const selectedValue = useMemo(() => language, [language]);
 
   const [newsData, setNewsData] = useState<any[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 12;
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,32 +25,55 @@ const LatestPosts: FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   useEffect(() => {
+    // reset when language or api key changes
+    setNewsData([]);
+    setPage(1);
+    setHasMore(true);
+  }, [language, GNEWS_API_KEY]);
+
+  useEffect(() => {
     const aborter = new AbortController();
-    async function fetchNews() {
+    async function fetchNewsPage() {
       setLoading(true);
       setError(null);
       try {
         if (!GNEWS_API_KEY) {
           setError("GNews API key is not configured. Set NEXT_PUBLIC_GNEWS_API_KEY in .env.local");
           setNewsData([]);
+          setHasMore(false);
           return;
         }
         const lang = language === "English" ? "en" : "hi";
-        // request political topic to bias results toward political articles
-        const url = `https://gnews.io/api/v4/top-headlines?lang=${lang}&country=in&topic=politics&max=24&apikey=${GNEWS_API_KEY}`;
+        // Use pagination: page and max (pageSize)
+        const url = `https://gnews.io/api/v4/top-headlines?lang=${lang}&country=in&topic=politics&max=${pageSize}&page=${page}&apikey=${GNEWS_API_KEY}`;
         const res = await fetch(url, { signal: aborter.signal });
         if (!res.ok) throw new Error(`API error ${res.status}`);
         const data = await res.json();
-        setNewsData(data?.articles || []);
+        const articles = data?.articles || [];
+        // append or replace depending on page
+        setNewsData(prev => {
+          const combined = page === 1 ? articles : [...prev, ...articles];
+          // dedupe by url
+          const seen = new Set<string>();
+          return combined.filter((a: any) => {
+            const u = (a.url || a.link || "") as string;
+            if (!u) return true;
+            if (seen.has(u)) return false;
+            seen.add(u);
+            return true;
+          });
+        });
+        // if fewer than pageSize returned, no more pages
+        setHasMore(articles.length === pageSize && articles.length > 0);
       } catch (err: any) {
         if (err.name !== "AbortError") setError(String(err.message || err));
       } finally {
         setLoading(false);
       }
     }
-    fetchNews();
+    fetchNewsPage();
     return () => aborter.abort();
-  }, [language, GNEWS_API_KEY]);
+  }, [language, GNEWS_API_KEY, page]);
 
   // read tag from query string and keep in state
   useEffect(() => {
@@ -150,13 +176,13 @@ const LatestPosts: FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setLanguage("English")}
-              className={`px-4 py-2 rounded-xl text-lg font-bold transition-all duration-200 ${language === "English" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg" : "bg-white border"}`}
+              className={`px-4 py-2 rounded-xl text-lg font-bold transition-all duration-200 ${language === "English" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg" : "bg-white text-black border border-gray-300 shadow-sm"}`}
             >
               English
             </button>
             <button
               onClick={() => setLanguage("Hindi")}
-              className={`px-4 py-2 rounded-xl text-lg font-bold transition-all duration-200 ${language === "Hindi" ? "bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg" : "bg-white border"}`}
+              className={`px-4 py-2 rounded-xl text-lg font-bold transition-all duration-200 ${language === "Hindi" ? "bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg" : "bg-white text-black border border-gray-300 shadow-sm"}`}
             >
               हिन्दी
             </button>
@@ -194,7 +220,8 @@ const LatestPosts: FC = () => {
       ) : newsPolitical.length === 0 ? (
         <div className="text-center py-10 text-xl">No articles found.</div>
       ) : (
-        <div id="latest-posts" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="w-full">
+          <div id="latest-posts" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {displayedNews.map((news, idx) => {
             const contentText = (news.content || news.description || news.title || "").toString();
             const summary = summarizeText(contentText);
@@ -216,6 +243,20 @@ const LatestPosts: FC = () => {
               />
             );
           })}
+        </div>
+        <div className="flex justify-center mt-6">
+          {hasMore ? (
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={loading}
+              className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-full shadow hover:scale-105 transition-transform duration-150"
+            >
+              {loading ? "Loading..." : "Load more articles"}
+            </button>
+          ) : (
+            <div className="text-gray-500">No more articles to load.</div>
+          )}
+        </div>
         </div>
       )}
 
