@@ -132,39 +132,83 @@ const LatestPosts: FC = () => {
     return t.slice(0, 220).trim() + "...";
   };
 
-  // Return emotion label plus counts so UI percentages can be derived consistently
-  const detectEmotionData = (t: string) => {
-    if (!t) return { label: "Neutral", posCount: 0, negCount: 0 };
-    const lower = t.toLowerCase();
-    const posWords = ["good","positive","success","win","benefit","improve","happy","gain","praise","support"];
-    const negWords = ["bad","negative","loss","fail","concern","angry","crisis","attack","kill","death","problem"];
-    const posHi = ["अच्छा","सकारात्मक","सफल","खुश","लाभ","समर्थन","सराहना"];
-    const negHi = ["बुरा","नाकारात्मक","हानि","हार","गुस्सा","आक्रमण","मृत","समस्या","चिंता"];
-    let posCount = 0;
-    let negCount = 0;
-    posWords.forEach(w => { if (lower.includes(w)) posCount += 1; });
-    negWords.forEach(w => { if (lower.includes(w)) negCount += 1; });
-    posHi.forEach(w => { if (lower.includes(w)) posCount += 1; });
-    negHi.forEach(w => { if (lower.includes(w)) negCount += 1; });
+  // Improved sentiment: take separate fields (title/description/content) and weight them,
+  // expand positive/negative lexicons and produce a normalized score so values vary per-article.
+  const detectEmotionData = (t: string, title = "", desc = "") => {
+    const lower = (title + "\n" + desc + "\n" + (t || "")).toLowerCase();
+
+    if (!lower.trim()) return { label: "Neutral", posScore: 0, negScore: 0 };
+
+    // richer lexicons (not exhaustive) for news domain
+    const posWords = [
+      "excellent","praise","welcomed","welcomes","acclaim","laud","lauded","support","supported","win","success","benefit","gain","improve","improved","reform","boost","positive","stable","resolved","agreement","deal","consensus"
+    ];
+    const negWords = [
+      "crisis","scandal","corrupt","corruption","accuse","accused","attack","violence","kill","death","dead","disaster","protest","angry","outrage","fail","failed","loss","drop","decline","concern","criticize","criticised","criticized","arrest"
+    ];
+    const posHi = ["अच्छा","सकारात्मक","सफल","खुश","लाभ","समर्थन","सराहना","सुधार","समाधान"];
+    const negHi = ["बुरा","हानि","गुस्सा","आक्रमण","मृत","चिंता","विवाद","आलोचना","भ्रष्टाचार","प्रदर्शन"];
+
+    // weight matches found in title/description/content differently
+    const fieldWeights = [
+      { text: title || "", w: 3 },
+      { text: desc || "", w: 2 },
+      { text: t || "", w: 1 },
+    ];
+
+    let posScore = 0;
+    let negScore = 0;
+
+    const matchCount = (txt: string, words: string[]) => {
+      if (!txt) return 0;
+      const lw = txt.toLowerCase();
+      let s = 0;
+      for (const w of words) {
+        const re = new RegExp("\\b" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "g");
+        const m = lw.match(re);
+        if (m) s += m.length;
+      }
+      return s;
+    };
+
+    for (const f of fieldWeights) {
+      const fw = f.w;
+      posScore += matchCount(f.text, posWords) * fw;
+      negScore += matchCount(f.text, negWords) * fw;
+      posScore += matchCount(f.text, posHi) * fw;
+      negScore += matchCount(f.text, negHi) * fw;
+    }
+
+    // if still zero, try checking for strong verbs/phrases
+    if (posScore === 0 && negScore === 0) {
+      const strongPos = /(welcome|praise|applaud|praised|welcomed|historic|landmark)/i;
+      const strongNeg = /(condemn|accuse|scandal|outrage|collapse|crisis|violence|attack|dead)/i;
+      if (strongPos.test(lower)) posScore += 2;
+      if (strongNeg.test(lower)) negScore += 2;
+    }
+
+    // normalize by log(length) to prevent very long articles from dominating
+    const wordCount = Math.max(1, lower.split(/\s+/).length);
+    posScore = posScore / Math.log10(wordCount + 5);
+    negScore = negScore / Math.log10(wordCount + 5);
+
     let label = "Neutral";
-    if (posCount === 0 && negCount === 0) label = "Neutral";
-    else if (posCount > negCount) label = "Positive";
-    else if (negCount > posCount) label = "Negative";
-    return { label, posCount, negCount };
+    if (posScore > negScore * 1.1) label = "Positive";
+    else if (negScore > posScore * 1.1) label = "Negative";
+
+    return { label, posScore: Math.round(posScore), negScore: Math.round(negScore) };
   };
 
-  const computePercentages = (posCount: number, negCount: number) => {
-    // simple mapping: if no signals, show neutral 60/20/20
-    const totalSignals = posCount + negCount;
-    if (totalSignals === 0) return { positive: 20, neutral: 60, negative: 20 };
-    // base neutral as leftover
-    const positive = Math.round((posCount / totalSignals) * 70) + 15; // scale into 15-85
-    const negative = Math.round((negCount / totalSignals) * 70) + 15;
+  const computePercentages = (posScore: number, negScore: number) => {
+    const total = posScore + negScore;
+    if (total === 0) return { positive: 20, neutral: 60, negative: 20 };
+    const posRatio = posScore / total;
+    const negRatio = negScore / total;
+    // map ratios into 10..80 with some neutral share
+    const positive = Math.max(5, Math.min(85, Math.round(posRatio * 80) + 10));
+    const negative = Math.max(5, Math.min(85, Math.round(negRatio * 80) + 10));
     let neutral = 100 - (positive + negative);
-    // clamp
-    if (neutral < 0) {
-      neutral = 0;
-    }
+    if (neutral < 0) neutral = 0;
     return { positive, neutral, negative };
   };
 
@@ -226,7 +270,7 @@ const LatestPosts: FC = () => {
             const contentText = (news.content || news.description || news.title || "").toString();
             const summary = summarizeText(contentText);
             const e = detectEmotionData(contentText);
-            const pct = computePercentages(e.posCount, e.negCount);
+            const pct = computePercentages(e.posScore, e.negScore);
             return (
               <Card
                 key={idx}
@@ -267,3 +311,4 @@ const LatestPosts: FC = () => {
 
 export default LatestPosts;
 // heading, body, catgeory, url
+  
